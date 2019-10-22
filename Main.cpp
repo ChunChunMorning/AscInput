@@ -1,44 +1,66 @@
-﻿
-# include <Siv3D.hpp>
-# include "asc/AscInput.hpp"
-
-using namespace asc;
+﻿# include <Siv3D.hpp>
+# include "asc/Input.hpp"
 
 void Main()
 {
-	asc::Input input;
+	asc::Input<String> input;
 
-	// コントローラーを用意
-	Gamepad gamepad(0);
-	XInput xinput(0);
-	xinput.setLeftThumbDeadZone();
+	// キーの登録
+	input.regsiterKey(
+		U"submit",
+		XInput(0).buttonA | Gamepad(0).buttons[3] | KeyZ
+	);
 
-	// ボタンの追加
-	input.addButton(L"fire", s3d::Input::KeyZ | Gamepad(0).button(2) | XInput(0).buttonA);
+	input.regsiterKey(
+		U"cancel",
+		XInput(0).buttonB | Gamepad(0).buttons[4] | KeyX
+	);
 
-	// 軸の追加
-	input.addAxis(L"x", Axis(s3d::Input::KeyRight, s3d::Input::KeyLeft) | Axis(gamepad, GamepadAxis::X) | Axis(xinput, XInputAxis::LeftThumbX));
-	input.addAxis(L"y", Axis(s3d::Input::KeyUp, s3d::Input::KeyDown) | Axis(gamepad, GamepadAxis::Y) | Axis(xinput, XInputAxis::LeftThumbY));
+	// XInput の軸の作成
+	asc::Axis xinputAxis = asc::Axis(0, asc::XInputAxisType::LeftThumbX);
+
+	// ゲームパッドの軸の作成
+	asc::Axis gamepadAxis = asc::Axis(0, 0);
+
+	// キーで表される軸の作成
+	asc::Axis keyAxis = asc::Axis(KeyLeft, KeyRight);
+
+	// 軸グループの作成
+	// 左に記述したものから優先されます。
+	asc::AxisGroup axisGroup = xinputAxis | gamepadAxis | keyAxis;
+
+	// 軸の登録
+	input.regsiterAxis(U"horizontal", axisGroup);
+
+	input.regsiterAxis(
+		U"vertical",
+		asc::Axis(0, asc::XInputAxisType::LeftThumbY) | asc::Axis(0, 1) | asc::Axis(KeyDown, KeyUp)
+	);
+
+	// XInput の DeadZone の設定
+	auto xinput = XInput(0);
+
+	if (xinput.isConnected())
+	{
+		xinput.setLeftThumbDeadZone();
+	}
 
 	while (System::Update())
 	{
 		ClearPrint();
 
-		// 値の使用
-		Println(L"fire = ", input.button(L"fire").clicked);
-		Println(L"x = ", input.axis(L"x"));
+		// キーの取得
+		Print << U"submit:{}"_fmt(input.key(U"submit").pressed());
+		Print << U"cancel:{}"_fmt(input.key(U"cancel").pressed());
 
-		// enabledがfalseの間、入力が無効になる
-		input.enabled = !input.button(L"fire").pressed;
+		// 軸の取得
+		Print << U"horizontal:{}"_fmt(input.axis(U"horizontal"));
+		Print << U"vertical:{}"_fmt(input.axis(U"vertical"));
 
-		Println(L"fire = ", input.button(L"fire").clicked);
+		// 軸を正規化された Vec2 として取得
+		Print << U"(horizontal, vertical):{}"_fmt(input.vec2Normalized(U"horizontal", U"vertical"));
 
-		// 零ベクトルを考慮した単位ベクトルを返す
-		Println(L"(x,y) = ", input.vec2Normalized(L"x", L"y"));
-
-		// 入力を8方向で返す
-		Println(L"(x,y) = ", input.as8Direction(L"x", L"y"));
-
-		input.enabled = true;
+		// 軸を [0, 3] で表される方向として取得
+		Print << U"4Direction:{}"_fmt(input.as4Direction(U"horizontal", U"vertical"));
 	}
 }

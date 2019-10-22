@@ -1,198 +1,337 @@
-# pragma once
+ï»¿# pragma once
 # include <Siv3D.hpp>
-# include "./Input/Axis.hpp"
+# include "Axis.hpp"
+# include "AxisGroup.hpp"
 
 namespace asc
 {
 	using namespace s3d;
 
+	template<class NameType>
 	class Input
 	{
-
 	private:
 
-		class CInput;
-
-		std::shared_ptr<CInput> pInput;
+		std::unordered_map<NameType, KeyGroup> m_keyGroups;
+		std::unordered_map<NameType, AxisGroup> m_axisGroups;
 
 	public:
 
 		/// <summary>
-		/// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
-		/// </summary>
-		Input();
-
-		/// <summary>
-		/// “ü—Í‚ª—LŒø‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
-		/// </summary>
-		__declspec(property(get = _get_enabled, put = _put_enabled)) bool enabled;
-
-		/// <summary>
-		/// w’è‚µ‚½ƒ{ƒ^ƒ“‚Ìó‘Ô‚ğ•Ô‚µ‚Ü‚·B
+		/// ã‚­ãƒ¼ãŒç™»éŒ²æ¸ˆã¿ã‹ã‚’è¿”ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="name">
-		/// “o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
+		/// ç™»éŒ²ã—ãŸã‚­ãƒ¼ã®åå‰
 		/// </param>
 		/// <returns>
-		/// ƒ{ƒ^ƒ“‚Ìó‘Ô
+		/// true ã‚­ãƒ¼ãŒç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ / false ã‚­ãƒ¼ãŒç™»éŒ²ã•ã‚Œã¦ã„ãªã„
 		/// </returns>
-		KeyCombination button(const String& name) const;
+		[[nodiscard]] bool isKeyRegistered(const NameType& name) const
+		{
+			return m_keyGroups.find(name) != m_keyGroups.end();
+		}
 
 		/// <summary>
-		/// w’è‚µ‚½²‚Ìó‘Ô‚ğ•Ô‚µ‚Ü‚·B
+		/// è»¸ãŒç™»éŒ²æ¸ˆã¿ã‹ã‚’è¿”ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="name">
-		/// “o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
+		/// ç™»éŒ²ã—ãŸè»¸ã®åå‰
 		/// </param>
 		/// <returns>
-		/// ²‚Ì’l [-1.0, 1.0]
+		/// true è»¸ãŒç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ / false è»¸ãŒç™»éŒ²ã•ã‚Œã¦ã„ãªã„
 		/// </returns>
-		double axis(const String& name) const;
+		[[nodiscard]] bool isAxisRegistered(const NameType& name) const
+		{
+			return m_axisGroups.find(name) != m_axisGroups.end();
+		}
 
 		/// <summary>
-		/// 2‚Â‚Ì²‚©‚ç Vec2 ‚ğì¬‚µ‚Ü‚·B
-		/// </summary>
-		/// <param name="xName">
-		/// X²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="yName">
-		/// Y²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <returns>
-		/// { xName, yName } ‚Ì Vec2
-		/// </returns>
-		Vec2 vec2(const String& xName, const String& yName) const;
-
-		/// <summary>
-		/// 2‚Â‚Ì²‚©‚ç³‹K‰»‚³‚ê‚½ Vec2 ‚ğì¬‚µ‚Ü‚·B
-		/// </summary>
-		/// <param name="xName">
-		/// X²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="yName">
-		/// Y²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <returns>
-		/// { xName, yName } ‚Ì³‹K‰»‚³‚ê‚½ Vec2
-		/// </returns>
-		/// <remarks>
-		/// —ëƒxƒNƒgƒ‹‚Ìê‡‚Í—ëƒxƒNƒgƒ‹‚ğ•Ô‚µ‚Ü‚·B
-		/// </remarks>
-		Vec2 vec2Normalized(const String& xName, const String& yName) const;
-
-		/// <summary>
-		/// 2‚Â‚Ì²‚©‚ç•ûŒü‚ğ [0, 3] ‚Å•Ô‚µ‚Ü‚·B
-		/// </summary>
-		/// <param name="xName">
-		/// X²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="yName">
-		/// Y²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="threshold">
-		/// —LŒø‚É‚·‚é’l‚ÌÅ’á’l
-		/// </param>
-		/// <returns>
-		/// [0, 3] ‚Å•\Œ»‚³‚ê‚½•ûŒüBthresholdˆÈ‰º‚Ìê‡‚Í none
-		/// </returns>
-		Optional<uint32> as4Direction(const String& xName, const String& yName, double threshold = 0.2);
-
-		/// <summary>
-		/// 2‚Â‚Ì²‚©‚ç•ûŒü‚ğ [0, 7] ‚Å•Ô‚µ‚Ü‚·B
-		/// </summary>
-		/// <param name="xName">
-		/// X²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="yName">
-		/// Y²‚É‚·‚é“o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="threshold">
-		/// —LŒø‚É‚·‚é’l‚ÌÅ’á’l
-		/// </param>
-		/// <returns>
-		/// [0, 7] ‚Å•\Œ»‚³‚ê‚½•ûŒüBthresholdˆÈ‰º‚Ìê‡‚Í none
-		/// </returns>
-		Optional<uint32> as8Direction(const String& xName, const String& yName, double threshold = 0.2);
-
-		/// <summary>
-		/// ƒ{ƒ^ƒ“‚ª“o˜^Ï‚İ‚©‚ğŠm”F‚µ‚Ü‚·B
+		/// ã‚­ãƒ¼ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="name">
-		/// “o˜^‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O
+		/// ç™»éŒ²ã™ã‚‹ã‚­ãƒ¼ã®åå‰
+		/// </param>
+		/// <param name="key">
+		/// ç™»éŒ²ã™ã‚‹ã‚­ãƒ¼
 		/// </param>
 		/// <returns>
-		/// ƒ{ƒ^ƒ“‚ª“o˜^‚³‚ê‚Ä‚¢‚ê‚Î true
+		/// ãªã—
 		/// </returns>
-		bool hasButton(const String& name) const;
+		void regsiterKey(const NameType& name, const Key& key)
+		{
+			registerKey(name, KeyGroup(key));
+		}
 
 		/// <summary>
-		/// ²‚ª“o˜^Ï‚İ‚©‚ğŠm”F‚µ‚Ü‚·B
+		/// ã‚­ãƒ¼ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="name">
-		/// “o˜^‚µ‚½²‚Ì–¼‘O
+		/// ç™»éŒ²ã™ã‚‹ã‚­ãƒ¼ã®åå‰
+		/// </param>
+		/// <param name="group">
+		/// ç™»éŒ²ã™ã‚‹ã‚­ãƒ¼
 		/// </param>
 		/// <returns>
-		/// ²‚ª“o˜^‚³‚ê‚Ä‚¢‚ê‚Î true
+		/// ãªã—
 		/// </returns>
-		bool hasAxis(const String& name) const;
+		void regsiterKey(const NameType& name, const KeyGroup& group)
+		{
+			m_keyGroups[name] = group;
+		}
 
 		/// <summary>
-		/// ƒ{ƒ^ƒ“‚ğ“o˜^‚µ‚Ü‚·B
+		/// è»¸ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="name">
-		/// “o˜^‚·‚éƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// </param>
-		/// <param name="button">
-		/// “o˜^‚·‚éƒ{ƒ^ƒ“
-		/// </param>
-		/// <returns>
-		/// ‚È‚µ
-		/// </returns>
-		void addButton(const String& name, const KeyCombination& button);
-
-		/// <summary>
-		/// ²‚ğ“o˜^‚µ‚Ü‚·B
-		/// </summary>
-		/// <param name="name">
-		/// “o˜^‚·‚é²‚Ì–¼‘O
+		/// ç™»éŒ²ã™ã‚‹è»¸ã®åå‰
 		/// </param>
 		/// <param name="axis">
-		/// “o˜^‚·‚é²
+		/// ç™»éŒ²ã™ã‚‹è»¸
 		/// </param>
 		/// <returns>
-		/// ‚È‚µ
+		/// ãªã—
 		/// </returns>
-		void addAxis(const String& name, const AxisCombination& axis);
+		void regsiterAxis(const NameType& name, const Axis& axis)
+		{
+			regsiterAxis(name, AxisGroup(axis));
+		}
 
 		/// <summary>
-		/// ƒ{ƒ^ƒ“‚ğíœ‚µ‚Ü‚·B
+		/// è»¸ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="name">
-		/// íœ‚·‚éƒ{ƒ^ƒ“‚Ì–¼‘O
-		/// <returns>
-		/// ‚È‚µ
-		/// </returns>
-		void eraseButton(const String& name);
-
-		/// <summary>
-		/// ²‚ğíœ‚µ‚Ü‚·B
-		/// </summary>
-		/// <param name="name">
-		/// íœ‚·‚é²‚Ì–¼‘O
+		/// ç™»éŒ²ã™ã‚‹è»¸ã®åå‰
+		/// </param>
+		/// <param name="axis">
+		/// ç™»éŒ²ã™ã‚‹è»¸
 		/// </param>
 		/// <returns>
-		/// ‚È‚µ
+		/// ãªã—
 		/// </returns>
-		void eraseAxis(const String& name);
+		void regsiterAxis(const NameType& name, const AxisGroup& group)
+		{
+			m_axisGroups[name] = group;
+		}
 
 		/// <summary>
-		/// enabledƒvƒƒpƒeƒB
+		/// ã‚­ãƒ¼ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 		/// </summary>
-		bool _get_enabled() const;
+		/// <param name="name">
+		/// å‰Šé™¤ã™ã‚‹ã‚­ãƒ¼ã®åå‰
+		/// <returns>
+		/// ãªã—
+		/// </returns>
+		void unregsiterKey(const NameType& name)
+		{
+			m_keyGroups.erase(name);
+		}
 
 		/// <summary>
-		/// enabledƒvƒƒpƒeƒB
+		/// è»¸ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 		/// </summary>
-		void _put_enabled(bool value);
+		/// <param name="name">
+		/// å‰Šé™¤ã™ã‚‹è»¸ã®åå‰
+		/// <returns>
+		/// ãªã—
+		/// </returns>
+		void unregsiterAxis(const NameType& name)
+		{
+			m_axisGroups.erase(name);
+		}
+
+		/// <summary>
+		/// æŒ‡å®šã—ãŸã‚­ãƒ¼ã‚’è¿”ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="name">
+		/// ç™»éŒ²ã—ãŸã‚­ãƒ¼ã®åå‰
+		/// </param>
+		/// <returns>
+		/// ç™»éŒ²ã—ãŸã‚­ãƒ¼
+		/// </returns>
+		[[nodiscard]] const KeyGroup& key(const NameType& name) const
+		{
+			return m_keyGroups.at(name);
+		}
+
+		/// <summary>
+		/// æŒ‡å®šã—ãŸè»¸ã‚’è¿”ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="name">
+		/// ç™»éŒ²ã—ãŸè»¸ã®åå‰
+		/// </param>
+		/// <returns>
+		/// ç™»éŒ²ã—ãŸè»¸
+		/// </returns>
+		[[nodiscard]] const AxisGroup& axis(const NameType& name) const
+		{
+			return m_axisGroups.at(name);
+		}
+
+		/// <summary>
+		/// 2ã¤ã®è»¸ã‹ã‚‰ Vec2 ã‚’ä½œæˆã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="xName">
+		/// Xè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="yName">
+		/// Yè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="threshold">
+		/// è»¸ã®é–¾å€¤ã€ã“ã®é–¾å€¤ä»¥ä¸‹ã®å…¥åŠ›ã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚
+		/// </param>
+		/// <returns>
+		/// { xName, yName } ã® Vec2
+		/// </returns>
+		[[nodiscard]] Vec2 vec2(const NameType& xName, const NameType& yName, double threshold = 0.12) const
+		{
+			assert(isAxisRegistered(xName));
+			assert(isAxisRegistered(yName));
+
+			return { axis(xName).get(threshold), axis(yName).get(threshold) };
+		}
+
+		/// <summary>
+		/// 2ã¤ã®è»¸ã‹ã‚‰ Vec2 ã‚’ä½œæˆã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="xName">
+		/// Xè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="yName">
+		/// Yè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="threshold">
+		/// è»¸ã®é–¾å€¤ã€ã“ã®é–¾å€¤ä»¥ä¸‹ã®å…¥åŠ›ã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚
+		/// </param>
+		/// <returns>
+		/// { xName, yName } ã®æ­£è¦åŒ–ã•ã‚ŒãŸ Vec2
+		/// </returns>
+		/// <remarks>
+		/// é›¶ãƒ™ã‚¯ãƒˆãƒ«ã®å ´åˆã¯é›¶ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã—ã¾ã™ã€‚
+		/// </remarks>
+		[[nodiscard]] Vec2 vec2Normalized(const NameType& xName, const NameType& yName, double threshold = 0.12) const
+		{
+			const auto rawValue = vec2(xName, yName, threshold);
+
+			if (rawValue.isZero())
+			{
+				return Vec2::Zero();
+			}
+
+			return rawValue.normalized();
+		}
+
+		/// <summary>
+		/// 2ã¤ã®è»¸ã‹ã‚‰æ–¹å‘ã‚’ [0, 3] ã§è¿”ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="xName">
+		/// Xè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="yName">
+		/// Yè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="threshold">
+		/// è»¸ã®é–¾å€¤ã€ã“ã®é–¾å€¤ä»¥ä¸‹ã®å…¥åŠ›ã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚
+		/// </param>
+		/// <returns>
+		/// [0, 3] ã§è¡¨ç¾ã•ã‚ŒãŸæ–¹å‘
+		/// </returns>
+		[[nodiscard]] Optional<uint32> as4Direction(const NameType& xName, const NameType& yName, double threshold = 0.2)
+		{
+			const auto rawValue = vec2(xName, yName, threshold);
+			const Circular circular = Vec2{ rawValue.x, -rawValue.y };
+
+			if (circular.r < threshold)
+			{
+				return none;
+			}
+
+			const double deg = Math::ToDegrees(circular.theta);
+
+			if (deg <= -135.0)
+			{
+				return 2u;
+			}
+			else if (deg <= -45.0)
+			{
+				return 3u;
+			}
+			else if (deg <= 45.0)
+			{
+				return 0u;
+			}
+			else if (deg <= 135.0)
+			{
+				return 1u;
+			}
+			else
+			{
+				return 2u;
+			}
+		}
+
+		/// <summary>
+		/// 2ã¤ã®è»¸ã‹ã‚‰æ–¹å‘ã‚’ [0, 7] ã§è¿”ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="xName">
+		/// Xè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="yName">
+		/// Yè»¸ã«ã™ã‚‹ç™»éŒ²ã—ãŸãƒœã‚¿ãƒ³ã®åå‰
+		/// </param>
+		/// <param name="threshold">
+		/// è»¸ã®é–¾å€¤ã€ã“ã®é–¾å€¤ä»¥ä¸‹ã®å…¥åŠ›ã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚
+		/// </param>
+		/// <returns>
+		/// [0, 7] ã§è¡¨ç¾ã•ã‚ŒãŸæ–¹å‘
+		/// </returns>
+		[[nodiscard]] Optional<uint32> as8Direction(const NameType& xName, const NameType& yName, double threshold = 0.2)
+		{
+			const auto rawValue = vec2(xName, yName, vec2::Zero(), threshold);
+			const Circular circular = Vec2{ rawValue.x, -rawValue.y };
+
+			if (circular.r < threshold)
+			{
+				return none;
+			}
+
+			const double deg = Math::ToDegrees(circular.theta);
+
+			if (deg <= -157.5)
+			{
+				return 4u;
+			}
+			else if (deg <= -112.5)
+			{
+				return 5u;
+			}
+			else if (deg <= -67.5)
+			{
+				return 6u;
+			}
+			else if (deg <= -22.5)
+			{
+				return 7u;
+			}
+			else if (deg <= 22.5)
+			{
+				return 0u;
+			}
+			else if (deg <= 67.5)
+			{
+				return 1u;
+			}
+			else if (deg <= 112.5)
+			{
+				return 2u;
+			}
+			else if (deg <= 157.5)
+			{
+				return 3u;
+			}
+			else
+			{
+				return 4u;
+			}
+		}
 	};
 }
